@@ -1,0 +1,78 @@
+.container {
+    max-width: 600px;
+    padding: 20px 12px 10px 20px;
+    font: 15px Arial, Helvetica, sans-serif;
+    color: #446;
+    display: grid;
+}
+
+.heading,
+.title {
+    font-weight: bold;
+    font-style: italic;
+    border-bottom: 2px solid #51B;
+    margin-bottom: 20px;
+    font-size: 18px;
+    padding-bottom: 3px;
+}
+
+.title {
+    font-size: 24px;
+    color: #335;
+}
+
+form label,
+.row {
+    display: block;
+    margin: 0px 0px 15px 0px;
+}
+
+form label > span,
+.row > span {
+    width: 48%;
+    padding-top: 8px;
+    padding-right: 5px;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+}
+
+form label > span,
+.row > span.left {
+    font-weight: bold;
+}
+
+form span.required {
+    color: red
+}
+
+form .form-item {
+    width: 48%;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border: 1px solid #CCC;
+    box-shadow: 1px 1px 4px #EEE;
+    -webkit-box-shadow: 1px 1px 4px #EEE;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    padding: 7px;
+    outline: none;
+}
+
+form .form-item:focus {
+    border: 1px solid #0BD;
+}
+
+.row button,
+input[type=submit] {
+    padding: 5px 15px 5px 15px;
+    color: white;
+    background-color: #A4D;
+    font-size: 15px;
+    border: none;
+}
+
+.row button:hover,
+input[type=submit]:hover {
+    background-color: #51B;
+}

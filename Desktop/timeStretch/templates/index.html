@@ -1,0 +1,195 @@
+<html>
+  <head>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='styles/main.css') }}">
+    <title>{{name}}</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="title">
+        TunePad Time Stretch Demo
+      </div>
+      <div class="row">
+        <p>
+          This page is a proof of concept for applying time-stretching algorithms to TunePad (tunepad.club). The three
+          algorithms are <b>Overlap-Add (OLA)</b>, an improvement of OLA called <b>Waveform Similarity OLA (WSOLA)</b>,
+          and the <b>Phase Vocoder</b> algorithm. All three work by breaking the original audio information into a series
+          of chunks (called frames). Additionally, they all splice these signals back together by summing the frames with
+          new overlaps. (e.g. If you wanted to stretch an audio by a rate of 2, the frames would overlap twice as much in
+          the output signal than in the input signal.)
+        </p>
+        <p>
+          <b>OLA</b> just splits them up and resynthesizes them as described above. <b>WSOLA</b> uses the cross-correlation
+          of each adjacent frames to find the optimal place to overlap based on how similar the two frames are. That is,
+          it determines at how much to overlap based on where the frames seem to overlap the most. The <b>Phase Vocoder</b>
+          is a more complicated algorithm because it affects the frequencies of the frames. It attempts to predict the
+          desired frequencies of each frame before returning it to the time domain and resynthesizing.
+        </p>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="heading">
+        Sound ID Tester
+      </div>
+      <div class="row">
+        <p>
+          This section is intended for you to test (without making a call to TunePad's servers) whether or not a certain
+          TunePad sound ID number is valid. It is up to date as of September 2, 2021. Most TunePad sounds between 2 and
+          528 are available to use, but some do not correspond to audio files. Use this as a tool to check whether your
+          desired sound is available.
+        </p>
+      </div>
+      <form id="test-form">
+        <label for="test-field">
+          <span>
+            TunePad Sample Number:
+            <span class="required">*</span>
+          </span>
+          <input type="number" class="form-item" name="test-field" value = "" min=2 max=528>
+        </label>
+        <div class="row">
+          <span>
+            <input type="submit" value="Submit"/>
+          </span>
+          <span>
+            <p id="test-result">&nbsp;</p>
+          </span>
+        </div>
+      </form>
+    </div>
+
+    <div class="container">
+      <div class="heading">
+        Parameters
+      </div>
+      <div class="row">
+        <p>
+          In this section, you can submit the information that will generate a stretched version of a Tunepad sound.
+          The first parameter is the <b>TunePad Sound ID</b>, which is the number that refers to a specific audio
+          file stored on TunePad's servers. The second parameter is the <b>Stretching Factor</b>, which is the amount
+          by which you would like to hear the sound stretched. (&gt;1 will speed up the sound and &lt;1 will slow down
+          the sound). Best results can be achieved when the stretching factor is closest to 1. The third parameter is
+          the <b>Algorithm</b>, which specifies which of the three algorithms you would like to use to stretch the sound.
+          The fourth and final parameter is <b>Window Type</b>, which refers to which kind of mathematical operation you
+          would like to be applied to each frame so that the resynthesized audio file sounds a little smoother. "Hann" is
+          the default and "Rectangular" applies no change to the frames.
+        </p>
+        <p>
+          <b>NOTE: This implementation of the Phase Vocoder algorithm produces a lot of noise that can be jarring and may
+          sound crackly on speakers.</b>
+        </p>
+      </div>
+      <form id="main-form">
+        <label for="sound-field">
+          <span>
+            TunePad Sound ID:
+            <span class="required">*</span>
+          </span>
+          <input type="number" class="form-item" name="sound-field" value = "" min=2 max=528>
+        </label>
+        <label for="stretch-field">
+          <span>
+            Stretching Factor:
+            <span class="required">*</span>
+          </span>
+          <input type="number" class="form-item" name="stretch-field" value = "" min=0.3 max=3.0 step=0.1>
+        </label>
+        <label for="algo-field">
+          <span>
+            Algorithm:
+            <span class="required">*</span>
+          </span>
+          <select class="form-item" name="algo-field" required>
+            <option value="" disabled selected></option>
+            <option value="OLA">OLA</option>
+            <option value="WSOLA">WSOLA</option>
+            <option value="PVOC">Phase Vocoder</option>
+          </select>
+        </label>
+        <label for="win-field">
+          <span>
+            Window Type:
+          </span>
+          <select class="form-item" name="win-field">
+            <option value="bartlett">Bartlett</option>
+            <option value="blackman">Blackman</option>
+            <option value="hamming">Hamming</option>
+            <option value="hann" selected>Hann</option>
+            <option value="rect">Rectangle</option>
+            <option value="sin">Sin</option>
+            <option value="welch">Welch</option>
+          </select>
+        </label>
+        <div class="row">
+          <span>
+            <input type="submit" value="Submit"/>
+          </span>
+          <span>
+            <p id="loading-text">&nbsp;</p>
+          </span>
+        </div>
+      </form>
+    </div>
+
+
+    <div class="container">
+      <div class="heading">
+        Playback
+      </div>
+      <div class="row">
+        <span class="left">
+          <p>Loaded Sound ID:</p>
+        </span>
+        <span id="loaded-id">
+          <p>N/A</p>
+        </span>
+      </div>
+      <div class="row">
+        <span class="left">
+          <p>Loaded Sound Name:</p>
+        </span>
+        <span id="loaded-name">
+          <p>N/A</p>
+        </span>
+      </div>
+      <div class="row">
+        <span class="left">
+          <p>Loaded Sound Duration:</p>
+        </span>
+        <span id="loaded-duration">
+          <p>N/A</p>
+        </span>
+      </div>
+      <div class="row">
+        <span class="left">
+          <p>Stretched Sound Duration:</p>
+        </span>
+        <span id="stretched-duration">
+          <p>N/A</p>
+        </span>
+      </div>
+      <div class="row">
+        <span class="left">
+          <p>Original Sound:</p>
+        </span>
+        <span>
+          <button id="original-btn">Play</button>
+        </span>
+      </div>
+      <div class="row">
+        <span class="left">
+          <p>
+            Stretched Sound:
+          </p>
+        </span>
+        <span>
+          <button id="stretched-btn">Play</button>
+        </span>
+      </div>
+    </div>
+
+    <script type="module" src="{{url_for('static', filename='js/main.js')}}"></script>
+    <script type="module" src="{{url_for('static', filename='js/stretch.js')}}"></script>
+    <script type="module" src="{{url_for('static', filename='js/lib/fft.js')}}"></script>
+  </body>
+</html>
